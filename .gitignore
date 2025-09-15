@@ -1,0 +1,10 @@
+# JetBrains IDE folder
+.idea/
+
+# Python cache
+__pycache__/
+
+# Data files
+*.csv
+data/
+tagged/
