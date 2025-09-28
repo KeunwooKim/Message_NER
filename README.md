@@ -1,31 +1,37 @@
-# Disaster Area Extraction Model Fine-tuning
+# 재난 문자 분석을 통한 재난 지역 추출 모델
 
-This project is a portfolio piece demonstrating the fine-tuning of a model for disaster area extraction.
+이 프로젝트는 재난 문자 메시지를 분석하여 재난 지역을 추출하는 모델을 파인튜닝하는 포트폴리오입니다.
 
-## Description
+## 프로젝트 설명
 
-This project aims to fine-tune a pre-trained model to accurately identify and extract disaster-stricken areas from images or satellite data.
+이 프로젝트는 사전 학습된 모델을 파인튜닝하여, 재난 문자 메시지에서 재난과 관련된 주요 정보를 정확하게 식별하고 추출하는 것을 목표로 합니다.
 
-## Installation
+## 설치 방법
 
-To run this project, you need to install the following dependencies:
+이 프로젝트를 실행하려면 다음의 의존성을 설치해야 합니다:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+## 사용법
 
-To train the model, run the following command:
+모델을 학습시키려면 다음 명령어를 실행하세요:
 
 ```bash
 python train.py
 ```
 
-## Model
+## 모델
 
-The model used in this project is a fine-tuned version of [mention the base model, e.g., U-Net, Mask R-CNN, etc.].
+이 프로젝트에서 사용된 모델은 `skt/kobert-base-v1`을 파인튜닝한 버전입니다.
 
-## Data
+## 데이터
 
-The data used for training and evaluation is located in the `data/` directory.
+학습 및 평가에 사용된 데이터는 `data/` 디렉토리에 있습니다.
+
+## 성능
+
+모델의 성능은 F1 점수를 기준으로 평가되었으며, 평가 결과는 다음과 같습니다.
+
+-   **F1 Score:** 약 0.85
