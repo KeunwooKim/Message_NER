@@ -18,6 +18,17 @@ def main():
     with open('data/combined_final_tagged.json', 'r') as f:
         data = json.load(f)
 
+    # Validate data to ensure token and label lengths match
+    validated_data = []
+    for i, item in enumerate(data):
+        if 'tokens' not in item or 'labels' not in item or len(item['tokens']) != len(item['labels']):
+            print(f"Warning: Mismatch or malformed data in sample index {i}. Skipping.")
+            continue
+        validated_data.append(item)
+    
+    print(f"Original data size: {len(data)}, Validated data size: {len(validated_data)}")
+    data = validated_data
+
     # Get labels and create mappings
     labels = get_labels(data)
     label_to_id = {label: i for i, label in enumerate(labels)}
@@ -39,21 +50,26 @@ def main():
 
         def __getitem__(self, idx):
             item = self.data[idx]
-            tokens = item['tokens']
-            labels = item['labels']
+            original_tokens = item['tokens']
+            original_labels = item['labels']
 
-            # Tokenize and align labels
-            tokenized_inputs = self.tokenizer(tokens, truncation=True, is_split_into_words=True, padding='max_length', max_length=128)
+            # Reconstruct sentence and tokenize with KoBERT to ensure consistency
+            sentence = " ".join(original_tokens)
+            tokenized_inputs = self.tokenizer(sentence, truncation=True, padding='max_length', max_length=128)
+
             word_ids = tokenized_inputs.word_ids()
 
             previous_word_idx = None
             label_ids = []
             for word_idx in word_ids:
                 if word_idx is None:
+                    # Special tokens get a -100 label so they are ignored by the loss function
                     label_ids.append(-100)
                 elif word_idx != previous_word_idx:
-                    label_ids.append(self.label_to_id[labels[word_idx]])
+                    # If it's the first token of a new word, assign the label
+                    label_ids.append(self.label_to_id[original_labels[word_idx]])
                 else:
+                    # For subsequent tokens of the same word, also assign -100
                     label_ids.append(-100)
                 previous_word_idx = word_idx
             
@@ -72,6 +88,8 @@ def main():
     model.config.label2id = label_to_id
 
     # Training arguments
+    # NOTE: Using older arguments for compatibility. Evaluating and saving every epoch.
+    # Estimated steps per epoch = (Total samples * 0.8) / batch_size approx. 215
     training_args = TrainingArguments(
         output_dir='./results',
         num_train_epochs=3,
@@ -81,11 +99,9 @@ def main():
         weight_decay=0.01,
         logging_dir='./logs',
         logging_steps=10,
-        evaluation_strategy="epoch",
-        save_strategy="epoch",
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
-        greater_is_better=False
+        do_eval=True,
+        eval_steps=215,
+        save_steps=215,
     )
 
     # Trainer

@@ -3,3 +3,8 @@ transformers
 scikit-learn
 pandas
 kobert-transformers
+protobuf
+accelerate
+datasets
+seqeval
+evaluate
